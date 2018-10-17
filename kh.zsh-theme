@@ -17,7 +17,7 @@ function get_tag() {
   fi
 }
 
-function get_path() {
+function show_path() {
   if [ -z $(get_tag) ]; then
     echo "%m@" $(get_pwd)
   else
@@ -25,7 +25,7 @@ function get_path() {
   fi
 }
 
-function put_spacing() {
+function show_time() {
   local git=$(git_prompt_info)
   if [ ${#git} != 0 ]; then
       (( git = ${#git} - 44 ))
@@ -33,23 +33,24 @@ function put_spacing() {
       git=0
   fi
 
-  local termwidth
-    (( termwidth = ${COLUMNS} - ${#$(get_path)} - ${#$(get_tag)} - ${git} - ${#$(get_time)} - 26))
+  local space_count
+    (( space_count = ${COLUMNS} - ${#$(show_path)} - ${#$(get_tag)} - ${git} - ${#$(get_time)} - 28))
 
-  local spacing=""
-  for i in {1..$termwidth}; do
-      spacing="${spacing} "
-  done
-  echo $spacing
+  if [ $space_count -gt 0 ]; then
+    local fill=""
+    for i in {1..$space_count}; do
+        fill="${fill} "
+    done
+    echo $fill$(get_time)
+  fi
 }
 
 local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
 
-PROMPT='● $fg_bold[cyan]$(get_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$reset_color$(put_spacing)$fg_bold[white]$(get_time)$reset_color
+PROMPT='● $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$reset_color$(show_time)
 '
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[yellow]%} ✗$fg[blue])"
-# don't remove the % symbol. it is the cheapest way to make it arrange, under different situations.
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%}% % % )" 
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%}% % % )" # don't remove the % symbol. it is the cheapest way to make it arrange, under different situations.

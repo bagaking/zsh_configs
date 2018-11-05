@@ -19,9 +19,10 @@ function get_tag() {
 
 function show_path() {
   if [ -z $(get_tag) ]; then
-    echo "%m@" $(get_pwd)
+    echo "@"$(get_pwd)
   else
-    echo "%m@"
+    echo "@"
+    #"%m@"
   fi
 }
 
@@ -53,7 +54,7 @@ prompt_status() {
 
 local ret_status="%(?:%{$fg[cyan]%}:%{$fg_bold[red]%})"
 
-PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info) $fg_bold[cyan]>$reset_color '
+PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$fg_bold[cyan]>$reset_color '
 # $(show_time)
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"

@@ -51,9 +51,9 @@ prompt_status() {
   echo $sym
 }
 
-local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
+local ret_status="%(?:%{$fg[cyan]%}:%{$fg_bold[red]%})"
 
-PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$reset_color'
+PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info) $fg_bold[cyan]>$reset_color '
 # $(show_time)
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"

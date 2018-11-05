@@ -45,10 +45,16 @@ function show_time() {
   fi
 }
 
+prompt_status() {
+  local sym
+  [[ $(jobs -l | wc -l) -gt 0 ]]  && sym+="⚙"|| sym+="●"
+  echo $sym
+}
+
 local ret_status="%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
 
-PROMPT='● $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$reset_color$(show_time)
-'
+PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$reset_color'
+# $(show_time)
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"

@@ -1,63 +1,64 @@
-function get_pwd(){
-  echo "${PWD/$HOME/~}"
+KH_VCS_PROMPT_PREFIX1=" %{$fg_bold[blue]%}"
+KH_VCS_PROMPT_PREFIX2="%{$fg_bold[blue]%}(%{$fg[cyan]%}"
+KH_VCS_PROMPT_SUFFIX="%{$fg_bold[blue]%})%{$reset_color%}"
+KH_VCS_PROMPT_DIRTY=" %{$fg[red]%}✗"
+KH_VCS_PROMPT_CLEAN=" %{$fg[green]%}o"
+
+# Git info
+local git_info='$(git_prompt_info)'
+ZSH_THEME_GIT_PROMPT_PREFIX="${KH_VCS_PROMPT_PREFIX1}git:${KH_VCS_PROMPT_PREFIX2}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="$KH_VCS_PROMPT_SUFFIX"
+ZSH_THEME_GIT_PROMPT_DIRTY="$KH_VCS_PROMPT_DIRTY"
+ZSH_THEME_GIT_PROMPT_CLEAN="$KH_VCS_PROMPT_CLEAN"
+
+# HG info
+local hg_info='$(KH_hg_prompt_info)'
+KH_hg_prompt_info() {
+	# make sure this is a hg dir
+	if [ -d '.hg' ]; then
+		echo -n "${KH_VCS_PROMPT_PREFIX1}hg${KH_VCS_PROMPT_PREFIX2}"
+		echo -n $(hg branch 2>/dev/null)
+		if [ -n "$(hg status 2>/dev/null)" ]; then
+			echo -n "$KH_VCS_PROMPT_DIRTY"
+		else
+			echo -n "$KH_VCS_PROMPT_CLEAN"
+		fi
+		echo -n "$KH_VCS_PROMPT_SUFFIX"
+	fi
 }
 
-function get_time() {
-  echo "%D %T"
+# JOBS info
+local jobs_info='$(KH_jobs_info)'
+KH_jobs_info() {
+  local sym
+  [[ $(jobs -l | wc -l) -gt 0 ]]  && sym+="⚙"|| sym+="●"
+  echo $sym
 }
 
-function get_tag() {
+# TAG info
+local tag_info='$(KH_tag_info)'
+KH_tag_info() {
   local len
   (( len = ${#PROJPATH} ))
 
   local tag
   if [ ${PWD:0:$len} == ${PROJPATH} ]; then
     tag=${PWD:$len}
-    echo ρ∷$tag
+    echo "%{$fg_bold[yellow]%}ρ∷$tag%{$reset_color%}"
+	else
+		echo "%~"
   fi
 }
 
-function show_path() {
-  if [ -z $(get_tag) ]; then
-    echo "@"$(get_pwd)
-  else
-    echo "@"
-    #"%m@"
-  fi
-}
+local exit_code="%(?,,C:%{$fg[red]%}%?%{$reset_color%})"
 
-function show_time() {
-  local git=$(git_prompt_info)
-  if [ ${#git} != 0 ]; then
-      (( git = ${#git} - 44 ))
-  else
-      git=0
-  fi
-
-  local space_count
-    (( space_count = ${COLUMNS} - ${#$(show_path)} - ${#$(get_tag)} - ${git} - ${#$(get_time)} - 28))
-
-  if [ $space_count -gt 0 ]; then
-    local fill=""
-    for i in {1..$space_count}; do
-        fill="${fill} "
-    done
-    echo $fill$(get_time)
-  fi
-}
-
-prompt_status() {
-  local sym
-  [[ $(jobs -l | wc -l) -gt 0 ]]  && sym+="⚙"|| sym+="●"
-  echo $sym
-}
-
-local ret_status="%(?:%{$fg[cyan]%}:%{$fg_bold[red]%})"
-
-PROMPT='$ret_status$(prompt_status) $fg_bold[cyan]$(show_path)$fg_bold[yellow]$(get_tag) $(git_prompt_info)$fg_bold[cyan]>$reset_color '
-# $(show_time)
-
-ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[yellow]%} ✗$fg[blue])"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%}% % % )" # don't remove the % symbol. it is the cheapest way to make it arrange, under different situations.
+PROMPT="
+%{$terminfo[bold]$fg[blue]%}${jobs_info}%{$reset_color%} \
+%(#,%{$bg[yellow]%}%{$fg[black]%}%n%{$reset_color%},%{$FG[128]%}%n) \
+%{$fg[white]%}@ \
+${tag_info}\
+${hg_info}\
+${git_info}\
+ \
+%{$FG[239]%}[%*] $exit_code
+%{$terminfo[bold]$fg[red]%}$ %{$reset_color%}"

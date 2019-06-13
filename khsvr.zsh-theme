@@ -66,11 +66,19 @@ KH_tag_info() {
   fi
 }
 
+# TAG info
+local ssh_info='$(KH_ssh_info)'
+KH_ssh_info() {
+  if [[ -n $SSH_CONNECTION ]]; then
+    echo "%{$fg_bold[red]%}(ssh) "
+  fi
+}
+
 local exit_code="%(?,,C:%{$fg[red]%}%?%{$reset_color%})"
 
 PROMPT="
-%{$terminfo[bold]$fg[blue]%}${jobs_info}%{$reset_color%} \
-%(#,%{$bg[yellow]%}%{$fg[black]%}%n%{$reset_color%},%{$FG[128]%}%n) \
+%{$terminfo[bold]$fg[blue]%}${jobs_info}%{$reset_color%} ${ssh_info}\
+%(#,%{$bg[yellow]%}%{$fg[black]%}%n%{$reset_color%},%{$FG[128]%}%n)\
 %{$fg[green]%}@${ip_info} \
 ${tag_info}\
 ${hg_info}\
